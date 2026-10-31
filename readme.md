@@ -10,7 +10,7 @@ Proyecto de práctica del programa **SAP Full Stack** (Cloud Formación TIC), in
 
 - **Ver una ruta**: cabecera (fecha, repartidor, camión, estado) y sus entregas en un ALV.
 - **Asignar entregas** a la ruta, comprobando que el camión no supere su carga máxima.
-- **Marcar entregas** como entregadas.
+- **Marcar entregas** como entregadas.├── clase/       ZCL_RUTAS_AB1510, ZCX_RUTAS_AB1510, interfaz e implementación de la BAdI
 - **Crear rutas nuevas** con numeración automática (rango numérico SNRO), solo para el jefe de logística.
 - **Doble clic** en una entrega para ver su detalle.
 - **Módulo de funciones** que devuelve los kilos y el % de ocupación de una ruta, para usarlo desde otros programas.
