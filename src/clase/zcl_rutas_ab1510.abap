@@ -1,45 +1,45 @@
-class ZCL_RUTAS_AB1510 definition
-  public
-  create public .
+CLASS zcl_rutas_ab1510 DEFINITION
+  PUBLIC
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  methods CONSTRUCTOR
-    importing
-      !IV_ID_RUTA type ZID_RUTA_AB1510
-    raising
-      ZCX_RUTAS_AB1510 .
-  methods GET_TOTAL_KILOS
-    returning
-      value(RV_KILOS) type ZPESO_KG_AB1510 .
-  methods ASIGNAR_ENTREGA
-    importing
-      !IS_ENTREGA type ZENTREGA_AB1510
-    raising
-      ZCX_RUTAS_AB1510 .
-  methods GET_RUTA
-    returning
-      value(RS_RUTA) type ZRUTA_AB1510 .
-  methods GET_ENTREGAS
-    returning
-      value(RT_ENTREGAS) type ZTT_ENTREGA_AB1510 .
-  methods MARCAR_ENTREGADA
-    importing
-      !IV_ID_ENTREGA type ZID_ENTREGA_AB1510
-    raising
-      ZCX_RUTAS_AB1510 .
-  class-methods CREAR_RUTA
-    importing
-      !IS_RUTA type ZRUTA_AB1510
-    returning
-      value(RO_RUTA) type ref to ZCL_RUTAS_AB1510
-    raising
-      ZCX_RUTAS_AB1510 .
-protected section.
-private section.
+    METHODS constructor
+      IMPORTING
+        !iv_id_ruta TYPE zid_ruta_ab1510
+      RAISING
+        zcx_rutas_ab1510 .
+    METHODS get_total_kilos
+      RETURNING
+        VALUE(rv_kilos) TYPE zpeso_kg_ab1510 .
+    METHODS asignar_entrega
+      IMPORTING
+        !is_entrega TYPE zentrega_ab1510
+      RAISING
+        zcx_rutas_ab1510 .
+    METHODS get_ruta
+      RETURNING
+        VALUE(rs_ruta) TYPE zruta_ab1510 .
+    METHODS get_entregas
+      RETURNING
+        VALUE(rt_entregas) TYPE ztt_entrega_ab1510 .
+    METHODS marcar_entregada
+      IMPORTING
+        !iv_id_entrega TYPE zid_entrega_ab1510
+      RAISING
+        zcx_rutas_ab1510 .
+    CLASS-METHODS crear_ruta
+      IMPORTING
+        !is_ruta       TYPE zruta_ab1510
+      RETURNING
+        VALUE(ro_ruta) TYPE REF TO zcl_rutas_ab1510
+      RAISING
+        zcx_rutas_ab1510 .
+  PROTECTED SECTION.
+  PRIVATE SECTION.
 
-  data GS_RUTA type ZRUTA_AB1510 .
-  data GS_VEHICULO type ZVEHICULO_AB1510 .
+    DATA gs_ruta TYPE zruta_ab1510 .
+    DATA gs_vehiculo TYPE zvehiculo_ab1510 .
 ENDCLASS.
 
 
@@ -55,8 +55,10 @@ CLASS ZCL_RUTAS_AB1510 IMPLEMENTATION.
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   METHOD asignar_entrega.
 
-    DATA: lv_total   TYPE zpeso_kg_ab1510,
-          ls_entrega TYPE zentrega_ab1510.
+    DATA: lv_total    TYPE zpeso_kg_ab1510,
+          ls_entrega  TYPE zentrega_ab1510,
+          lt_entregas TYPE ztt_entrega_ab1510,                  " <-- NUEVO
+          lo_badi     TYPE REF TO zbadi_validar_entrega_ab1510.
 
 *   Una entrega sin peso o con peso negativo no tiene sentido
     IF is_entrega-peso_kg <= 0.
@@ -76,6 +78,16 @@ CLASS ZCL_RUTAS_AB1510 IMPLEMENTATION.
         EXPORTING
           textid = zcx_rutas_ab1510=>entrega_ya_existe.
     ENDIF.
+
+*   NUEVO: dejo que las implementaciones de la BAdI añadan sus reglas.
+*   Si alguna no se cumple, lanza ZCX y la entrega no se graba.
+    lt_entregas = get_entregas( ).
+    GET BADI lo_badi.
+
+    CALL BADI lo_badi->validar
+      EXPORTING
+        is_entrega  = is_entrega
+        it_entregas = lt_entregas.
 
 *   Calculo cuántos kilos llevaría el camión con esta entrega
     lv_total = get_total_kilos( ) + is_entrega-peso_kg.
@@ -107,7 +119,7 @@ CLASS ZCL_RUTAS_AB1510 IMPLEMENTATION.
 * | [--->] IV_ID_RUTA                     TYPE        ZID_RUTA_AB1510
 * | [!CX!] ZCX_RUTAS_AB1510
 * +--------------------------------------------------------------------------------------</SIGNATURE>
-   METHOD constructor.
+  METHOD constructor.
 
 
 
