@@ -14,6 +14,7 @@ Proyecto de práctica del programa **SAP Full Stack** (Cloud Formación TIC), in
 - **Crear rutas nuevas** con numeración automática (rango numérico SNRO), solo para el jefe de logística.
 - **Doble clic** en una entrega para ver su detalle.
 - **Módulo de funciones** que devuelve los kilos y el % de ocupación de una ruta, para usarlo desde otros programas.
+- **Punto de ampliación propio (BAdI)** para que cada empresa añada sus propias reglas de validación sin modificar la clase principal.
 
 ## Técnicas utilizadas
 
@@ -29,6 +30,7 @@ Proyecto de práctica del programa **SAP Full Stack** (Cloud Formación TIC), in
 | Numeración | Rango numérico SNRO + `NUMBER_GET_NEXT` |
 | Módulo de funciones | `ZFM_KILOS_RUTA_AB1510` que reutiliza la clase y transforma la excepción en clásica |
 | Transacciones (SE93) | `ZRUTAS_AB1510` y `ZRUTAS_JEFE_AB1510` |
+| Ampliaciones (SE18 / SE19) | BAdI propia `ZBADI_VALIDAR_ENTREGA_AB1510` en el punto de ampliación `ZES_RUTAS_AB1510`, llamada con `GET BADI` / `CALL BADI` e implementada en una clase aparte |
 
 ## Modelo de datos
 
@@ -50,6 +52,7 @@ Detalle de tablas, dominios y claves externas en [diccionario/tablas.md](diccion
 | Solo se marcan entregas de la propia ruta | `MARCAR_ENTREGADA` |
 | La ruta debe llevar un camión existente | Clave externa |
 | Solo el jefe de logística crea rutas | `AUTHORITY-CHECK` |
+| Máximo 5 entregas por ruta (regla de ejemplo, activable y desactivable) | Implementación de la BAdI `ZCL_IMP_MAX_ENTREGAS_AB1510` |
 
 ## Capturas
 
@@ -59,13 +62,14 @@ Detalle de tablas, dominios y claves externas en [diccionario/tablas.md](diccion
 | Entrega repetida ![](capturas/03b-entrega-repetida.png) | Nueva ruta ![](capturas/04-nueva-ruta.png) |
 | Detalle con doble clic ![](capturas/05-doble-clic.png) | Validación en la SM30 ![](capturas/06-validacion-sm30.png) |
 | Sin autorización ![](capturas/07-autorizacion.png) | Módulo de funciones ![](capturas/08-fm-ocupacion.png) |
+| Regla añadida con BAdI ![](capturas/09-badi-max-entregas.png) | |
 
 ## Estructura del repositorio
 
 ```
 src/
 ├── programa/    ZRUTAS_AB1510 y sus includes (TOP, CLS, PBO, PAI)
-├── clase/       ZCL_RUTAS_AB1510 y ZCX_RUTAS_AB1510
+├── clase/       ZCL_RUTAS_AB1510, ZCX_RUTAS_AB1510, interfaz e implementación de la BAdI
 ├── funciones/   ZFM_KILOS_RUTA_AB1510
 ├── sm30/        Validaciones de los eventos de la SM30
 └── test/        Programa de prueba de la clase
